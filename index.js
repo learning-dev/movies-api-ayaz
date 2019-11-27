@@ -7,6 +7,16 @@ const connection = mysql.createConnection({
   database: 'movies_database',
 });
 
+
+// function connectToDatabase(){
+//   connection.connect((err) => {
+//     if (err) {
+//       throw err;
+//     }
+//     console.log('connected to database');
+//   }
+// }
+
 function getAllDirector() {
   const getAllquery = 'SELECT * FROM Director';
   connection.query(getAllquery, (err, result) => {
@@ -80,56 +90,63 @@ function updateDirector(data) {
 }
 
 function getAllMovies() {
-  const getAllquery = 'SELECT * FROM Movie';
-  connection.query(getAllquery, (err, result) => {
-    if (err) throw err;
 
-    let movieList = [];
-    //console.log(result);
-    for (let i = 0; i < result.length; i += 1) {
-      const singleEntry = {
-        movie_rank: result[i].movie_rank,
-        Title: result[i].Title,
-        description: result[i].description,
-        Runtime: result[i].Runtime,
-        genre: result[i].genre,
-        rating: result[i].rating,
-        metascore: result[i].metascore,
-        votes: result[i].votes,
-        gross_earning_mil: result[i].gross_earning_mil,
-        director_id: result[i].director_id,
-        actor: result[i].actor,
-        years: result[i].years,
-      };
-      movieList.push(singleEntry);
-    }
-    const queryData = { data: movieList };
-    console.log(queryData);
-    return queryData;
+  return new Promise((resolve, reject) => {
+    const getAllquery = 'SELECT * FROM Movie';
+
+    connection.query(getAllquery, (err, result) => {
+      if (err) return reject(err);
+
+      let movieList = [];
+      for (let i = 0; i < result.length; i += 1) {
+        const singleEntry = {
+          movie_rank: result[i].movie_rank,
+          Title: result[i].Title,
+          description: result[i].description,
+          Runtime: result[i].Runtime,
+          genre: result[i].genre,
+          rating: result[i].rating,
+          metascore: result[i].metascore,
+          votes: result[i].votes,
+          gross_earning_mil: result[i].gross_earning_mil,
+          director_id: result[i].director_id,
+          actor: result[i].actor,
+          years: result[i].years,
+        };
+        movieList.push(singleEntry);
+      }
+      const movies = { data: movieList };
+      //console.log(movies);
+      return resolve(movies);
+    });
   });
 }
 
-function getMovieByID(id) {
-  const sqlQuery = `SELECT * FROM Movie WHERE movie_rank = '${id}'`;
-  connection.query(sqlQuery, (err, result) => {
-    if (err) throw err;
-    const singleEntry = {
-      movie_rank: result[0].movie_rank,
-      Title: result[0].Title,
-      description: result[0].description,
-      Runtime: result[0].Runtime,
-      genre: result[0].genre,
-      rating: result[0].rating,
-      metascore: result[0].metascore,
-      votes: result[0].votes,
-      gross_earning_mil: result[0].gross_earning_mil,
-      director_id: result[0].director_id,
-      actor: result[0].actor,
-      years: result[0].years,
-    };
 
-    const queryData = { data: singleEntry };
-    console.log(queryData);
+function getMovieByID(id) {
+  return new Promise((resolve, reject) => {
+    const sqlQuery = `SELECT * FROM Movie WHERE movie_rank = '${id}'`;
+    connection.query(sqlQuery, (err, result) => {
+      if (err) return reject(err);
+      const singleEntry = {
+        movie_rank: result[0].movie_rank,
+        Title: result[0].Title,
+        description: result[0].description,
+        Runtime: result[0].Runtime,
+        genre: result[0].genre,
+        rating: result[0].rating,
+        metascore: result[0].metascore,
+        votes: result[0].votes,
+        gross_earning_mil: result[0].gross_earning_mil,
+        director_id: result[0].director_id,
+        actor: result[0].actor,
+        years: result[0].years,
+      };
+
+      const queryData = { data: singleEntry };
+      console.log(queryData);
+      return resolve(queryData);
+    });
   });
 }
 
@@ -173,13 +190,13 @@ connection.connect((err) => {
     throw err;
   } else {
     console.log('Connected to DB!');
-    getAllDirector();
-    getDirectorByID('D10');
-    const testDirect = { director_id: 'D51', director_name: 'Tim Burton' };
-    //addDirector(testDirect);
-    //const valueToUpdate = { update: { director_name: 'Alfonso Cuarón' }, director_id: 'D51' };
-    //updateDirector(valueToUpdate);
-    deleteDirector('D51');
+    // getAllDirector();
+    // getDirectorByID('D10');
+    // const testDirect = { director_id: 'D51', director_name: 'Tim Burton' };
+    // //addDirector(testDirect);
+    // //const valueToUpdate = { update: { director_name: 'Alfonso Cuarón' }, director_id: 'D51' };
+    // //updateDirector(valueToUpdate);
+    // deleteDirector('D51');
 
 
     // Movies part
@@ -198,11 +215,13 @@ connection.connect((err) => {
       years: 1969,
     };
     //getAllMovies();
-    getMovieByID('2');
-    addMovie(movieToAdd);
-    const testUpdate = { update: { director_id: 'D51', rating: 8.1 }, movie_rank: 51 };
-    deleteMovie('51');
-    updateMovie(testUpdate);
-    connection.end();
+    //getMovieByID('2');
+    //addMovie(movieToAdd);
+    //const testUpdate = { update: { director_id: 'D51', rating: 8.1 }, movie_rank: 51 };
+    //deleteMovie('51');
+    //updateMovie(testUpdate);
+    //connection.end();
   }
 });
+
+module.exports = { getAllMovies, getMovieByID };
