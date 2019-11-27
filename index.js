@@ -12,15 +12,15 @@ function getAllDirector() {
   connection.query(getAllquery, (err, result) => {
     if (err) throw err;
 
-    let queryList = [];
+    let directorList = [];
     for (let i = 0; i < result.length; i += 1) {
       const singleEntry = {
         director_id: result[i].director_id,
         director_name: result[i].director_name,
       };
-      queryList.push(singleEntry);
+      directorList.push(singleEntry);
     }
-    const queryData = { data: queryList };
+    const queryData = { data: directorList };
     console.log(queryData);
     //return queryData;
   });
@@ -84,7 +84,7 @@ function getAllMovies() {
   connection.query(getAllquery, (err, result) => {
     if (err) throw err;
 
-    let queryList = [];
+    let movieList = [];
     //console.log(result);
     for (let i = 0; i < result.length; i += 1) {
       const singleEntry = {
@@ -101,14 +101,72 @@ function getAllMovies() {
         actor: result[i].actor,
         years: result[i].years,
       };
-      queryList.push(singleEntry);
+      movieList.push(singleEntry);
     }
-    const queryData = { data: queryList };
+    const queryData = { data: movieList };
     console.log(queryData);
     return queryData;
   });
 }
 
+function getMovieByID(id) {
+  const sqlQuery = `SELECT * FROM Movie WHERE movie_rank = '${id}'`;
+  connection.query(sqlQuery, (err, result) => {
+    if (err) throw err;
+    const singleEntry = {
+      movie_rank: result[0].movie_rank,
+      Title: result[0].Title,
+      description: result[0].description,
+      Runtime: result[0].Runtime,
+      genre: result[0].genre,
+      rating: result[0].rating,
+      metascore: result[0].metascore,
+      votes: result[0].votes,
+      gross_earning_mil: result[0].gross_earning_mil,
+      director_id: result[0].director_id,
+      actor: result[0].actor,
+      years: result[0].years,
+    };
+
+    const queryData = { data: singleEntry };
+    console.log(queryData);
+  });
+}
+
+function addMovie(data) {
+  const sqlQuery = 'INSERT INTO Movie (movie_rank, Title, description, Runtime, genre, rating, metascore, '
+  + `votes, gross_earning_mil, director_id, actor, years) VALUES (${data.movie_rank}, '${data.Title}', '${data.description}',`
+    + `${data.Runtime}, '${data.genre}', ${data.rating}, '${data.metascore}', ${data.votes}, '${data.gross_earning_mil}', `
+    + `'${data.director_id}', '${data.actor}', '${data.years}');`;
+
+  connection.query(sqlQuery, (err, result) => {
+    if (err) throw err;
+    console.log(result);
+  });
+}
+
+function deleteMovie(movieRank) {
+  const sqlQuery = `DELETE FROM Movie WHERE movie_rank = '${movieRank}';`;
+
+  connection.query(sqlQuery, (err, result) => {
+    if (err) throw err;
+    console.log(result);
+    console.log('Movie deleted successfully!');
+  });
+}
+
+function updateMovie(data) {
+  let sqlQuery = '';
+  const fieldsToBeUpdated = Object.keys(data.update);
+  fieldsToBeUpdated.forEach((field) => {
+    sqlQuery = `UPDATE Movie SET ${field} = '${data.update[field]}' WHERE movie_rank ='${data.movie_rank}';`;
+    connection.query(sqlQuery, (err, result) => {
+      if (err) throw err;
+      console.log(result);
+      console.log('Value Updated!');
+    });
+  });
+}
 
 connection.connect((err) => {
   if (err) {
@@ -125,6 +183,26 @@ connection.connect((err) => {
 
 
     // Movies part
+    const movieToAdd = {
+      movie_rank: 51,
+      Title: 'Midnight Cowboy',
+      description: 'A naive hustler travels from Texas to New York City to seek personal fortune, finding a new friend in the process.',
+      Runtime: 113,
+      genre: 'Drama',
+      rating: 7.8,
+      metascore: '79',
+      votes: 93364,
+      gross_earning_mil: '44.79',
+      director_id: 'D52',
+      actor: 'Dustin Hoffman',
+      years: 1969,
+    };
     //getAllMovies();
+    getMovieByID('2');
+    addMovie(movieToAdd);
+    const testUpdate = { update: { director_id: 'D51', rating: 8.1 }, movie_rank: 51 };
+    deleteMovie('51');
+    updateMovie(testUpdate);
+    connection.end();
   }
 });
