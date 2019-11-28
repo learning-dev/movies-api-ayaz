@@ -1,10 +1,10 @@
 // implement .catch and send 404 error when you don't find something.
-const body_parser = require('body-parser');
+const bodyParser = require('body-parser');
 const express = require('express');
 const movie = require('./index');
 
 const app = express();
-app.use(body_parser.json());
+app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
