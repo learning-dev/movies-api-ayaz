@@ -22,9 +22,8 @@ function getAllDirector() {
         };
         directorList.push(singleEntry);
       }
-      const MoviesListJson = { data: directorList };
-      console.log(MoviesListJson);
-      return resolve(MoviesListJson);
+      const directorListJson = { data: directorList };
+      return resolve(directorListJson);
     });
   });
 }
@@ -94,8 +93,8 @@ function updateDirector(id, data) {
         console.log(result);
         console.log('Value Updated!');
       });
-      resolve({ data: { message: `Values of the given fields i.e. ${fieldsToBeUpdated.join(', ')} has been updated!` } });
     });
+    resolve({ data: { message: `Values of the given fields i.e. ${fieldsToBeUpdated.join(', ')} has been updated!` } });
   });
 }
 
