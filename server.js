@@ -1,3 +1,5 @@
+// implement .catch and send 404 error when you don't find something.
+
 const express = require('express');
 const movie = require('./index');
 
@@ -51,6 +53,13 @@ app.delete('/api/directors/:id', (req, res) => {
   const promiseObject = movie.deleteDirector(req.params.id);
   promiseObject.then((result) => res.send(result));
 });
+
+app.put('/api/directors/:id', (req, res) => {
+
+});
+// app.post('api/directors/', (req, res) => {
+
+// });
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
