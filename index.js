@@ -8,15 +8,6 @@ const connection = mysql.createConnection({
 });
 
 
-// function connectToDatabase(){
-//   connection.connect((err) => {
-//     if (err) {
-//       throw err;
-//     }
-//     console.log('connected to database');
-//   }
-// }
-
 function getAllDirector() {
   return new Promise((resolve, reject) => {
     const getAllquery = 'SELECT * FROM Director';
@@ -37,6 +28,7 @@ function getAllDirector() {
     });
   });
 }
+
 function makeDirectorID(givenId) {
   let directorID = '';
   if (givenId.length > 1) {
@@ -67,9 +59,12 @@ function getDirectorByID(id) {
 function addDirector(data) {
   const sqlQuery = `INSERT INTO Director (director_id, director_name) VALUES ('${data.director_id}', '${data.director_name}');`;
 
-  connection.query(sqlQuery, (err, result) => {
-    if (err) throw err;
-    console.log(result);
+  return new Promise((resolve, reject) => {
+    connection.query(sqlQuery, (err, result) => {
+      if (err) reject(err);
+      console.log(result);
+      return resolve({ data: { message: `Director ${data.director_name} has been inserted in the database.` } });
+    });
   });
 }
 
@@ -86,23 +81,21 @@ function deleteDirector(id) {
   });
 }
 
-function updateDirector(data) {
+function updateDirector(id, data) {
   let sqlQuery = '';
-
-  if (data['update'].hasOwnProperty('director_name')) {
-    sqlQuery = `UPDATE Director SET director_name = '${data.update.director_name}' WHERE director_id ='${data.director_id}';`;
-  }
-  else if (data.update.hasOwnProperty('director_id')) {
-    sqlQuery = `UPDATE Director SET director_id = '${data.update.director_id}' WHERE director_id ='${data.director_id}';`;
-  } else {
-    console.log('No values to update!');
-    return;
-  }
-
-  connection.query(sqlQuery, (err, result) => {
-    if (err) throw err;
-    console.log(result);
-    console.log('Value Updated!');
+  const fieldsToBeUpdated = Object.keys(data);
+  const directorID = makeDirectorID(id);
+  return new Promise((resolve, reject) => {
+    fieldsToBeUpdated.forEach((field) => {
+      console.log('field:', field);
+      sqlQuery = `UPDATE Director SET ${field} = '${data[field]}' WHERE director_id ='${directorID}';`;
+      connection.query(sqlQuery, (err, result) => {
+        if (err) reject(err);
+        console.log(result);
+        console.log('Value Updated!');
+      });
+      resolve({ data: { message: `Values of the given fields i.e. ${fieldsToBeUpdated.join(', ')} has been updated!` } });
+    });
   });
 }
 
@@ -172,9 +165,12 @@ function addMovie(data) {
     + `${data.Runtime}, '${data.genre}', ${data.rating}, '${data.metascore}', ${data.votes}, '${data.gross_earning_mil}', `
     + `'${data.director_id}', '${data.actor}', '${data.years}');`;
 
-  connection.query(sqlQuery, (err, result) => {
-    if (err) throw err;
-    console.log(result);
+  return new Promise((resolve, reject) => {
+    connection.query(sqlQuery, (err, result) => {
+      if (err) return reject(err);
+      console.log(result);
+      return resolve(`Movie ${data.Title} added successfully!`);
+    });
   });
 }
 
@@ -191,15 +187,18 @@ function deleteMovie(movieRank) {
   });
 }
 
-function updateMovie(data) {
+function updateMovie(id, data) {
   let sqlQuery = '';
-  const fieldsToBeUpdated = Object.keys(data.update);
-  fieldsToBeUpdated.forEach((field) => {
-    sqlQuery = `UPDATE Movie SET ${field} = '${data.update[field]}' WHERE movie_rank ='${data.movie_rank}';`;
-    connection.query(sqlQuery, (err, result) => {
-      if (err) throw err;
-      console.log(result);
-      console.log('Value Updated!');
+  const fieldsToBeUpdated = Object.keys(data);
+  return new Promise((resolve, reject) => {
+    fieldsToBeUpdated.forEach((field) => {
+      sqlQuery = `UPDATE Movie SET ${field} = '${data[field]}' WHERE movie_rank ='${id}';`;
+      connection.query(sqlQuery, (err, result) => {
+        if (err) reject(err);
+        console.log(result);
+        console.log('Value Updated!');
+      });
+      resolve({ data: { message: `Values of the given fields i.e. ${fieldsToBeUpdated.join(', ')} has been updated!` } });
     });
   });
 }
@@ -209,37 +208,6 @@ connection.connect((err) => {
     throw err;
   } else {
     console.log('Connected to DB!');
-    // getAllDirector();
-    // getDirectorByID('D10');
-    // const testDirect = { director_id: 'D51', director_name: 'Tim Burton' };
-    // //addDirector(testDirect);
-    // //const valueToUpdate = { update: { director_name: 'Alfonso Cuarón' }, director_id: 'D51' };
-    // //updateDirector(valueToUpdate);
-    // deleteDirector('D51');
-
-
-    // Movies part
-    const movieToAdd = {
-      movie_rank: 51,
-      Title: 'Midnight Cowboy',
-      description: 'A naive hustler travels from Texas to New York City to seek personal fortune, finding a new friend in the process.',
-      Runtime: 113,
-      genre: 'Drama',
-      rating: 7.8,
-      metascore: '79',
-      votes: 93364,
-      gross_earning_mil: '44.79',
-      director_id: 'D52',
-      actor: 'Dustin Hoffman',
-      years: 1969,
-    };
-    //getAllMovies();
-    //getMovieByID('2');
-    //addMovie(movieToAdd);
-    //const testUpdate = { update: { director_id: 'D51', rating: 8.1 }, movie_rank: 51 };
-    //deleteMovie('51');
-    //updateMovie(testUpdate);
-    //connection.end();
   }
 });
 
@@ -247,8 +215,11 @@ module.exports = {
   getAllMovies,
   getMovieByID,
   addMovie,
+  updateMovie,
   getAllDirector,
+  addDirector,
   getDirectorByID,
   deleteMovie,
   deleteDirector,
+  updateDirector,
 };
