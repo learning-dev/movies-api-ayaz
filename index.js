@@ -110,9 +110,9 @@ function getAllMovies() {
       for (let i = 0; i < result.length; i += 1) {
         const singleEntry = {
           movie_rank: result[i].movie_rank,
-          Title: result[i].Title,
+          title: result[i].title,
           description: result[i].description,
-          Runtime: result[i].Runtime,
+          runtime: result[i].runtime,
           genre: result[i].genre,
           rating: result[i].rating,
           metascore: result[i].metascore,
@@ -120,7 +120,7 @@ function getAllMovies() {
           gross_earning_mil: result[i].gross_earning_mil,
           director_id: result[i].director_id,
           actor: result[i].actor,
-          years: result[i].years,
+          year: result[i].year,
         };
         movieList.push(singleEntry);
       }
@@ -139,9 +139,9 @@ function getMovieByID(id) {
       if (err) return reject(err);
       const singleEntry = {
         movie_rank: result[0].movie_rank,
-        Title: result[0].Title,
+        title: result[0].title,
         description: result[0].description,
-        Runtime: result[0].Runtime,
+        runtime: result[0].runtime,
         genre: result[0].genre,
         rating: result[0].rating,
         metascore: result[0].metascore,
@@ -149,7 +149,7 @@ function getMovieByID(id) {
         gross_earning_mil: result[0].gross_earning_mil,
         director_id: result[0].director_id,
         actor: result[0].actor,
-        years: result[0].years,
+        year: result[0].year,
       };
 
       const queryData = { data: singleEntry };
@@ -160,16 +160,16 @@ function getMovieByID(id) {
 }
 
 function addMovie(data) {
-  const sqlQuery = 'INSERT INTO Movie (movie_rank, Title, description, Runtime, genre, rating, metascore, '
-  + `votes, gross_earning_mil, director_id, actor, years) VALUES (${data.movie_rank}, '${data.Title}', '${data.description}',`
-    + `${data.Runtime}, '${data.genre}', ${data.rating}, '${data.metascore}', ${data.votes}, '${data.gross_earning_mil}', `
-    + `'${data.director_id}', '${data.actor}', '${data.years}');`;
+  const sqlQuery = 'INSERT INTO Movie (movie_rank, title, description, runtime, genre, rating, metascore, '
+  + `votes, gross_earning_mil, director_id, actor, year) VALUES (${data.movie_rank}, '${data.title}', '${data.description}',`
+    + `${data.runtime}, '${data.genre}', ${data.rating}, '${data.metascore}', ${data.votes}, '${data.gross_earning_mil}', `
+    + `'${data.director_id}', '${data.actor}', '${data.year}');`;
 
   return new Promise((resolve, reject) => {
     connection.query(sqlQuery, (err, result) => {
       if (err) return reject(err);
       console.log(result);
-      return resolve(`Movie ${data.Title} added successfully!`);
+      return resolve(`Movie ${data.title} added successfully!`);
     });
   });
 }
