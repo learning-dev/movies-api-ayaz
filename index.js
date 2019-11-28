@@ -18,35 +18,49 @@ const connection = mysql.createConnection({
 // }
 
 function getAllDirector() {
-  const getAllquery = 'SELECT * FROM Director';
-  connection.query(getAllquery, (err, result) => {
-    if (err) throw err;
+  return new Promise((resolve, reject) => {
+    const getAllquery = 'SELECT * FROM Director';
+    connection.query(getAllquery, (err, result) => {
+      if (err) reject(err);
 
-    let directorList = [];
-    for (let i = 0; i < result.length; i += 1) {
-      const singleEntry = {
-        director_id: result[i].director_id,
-        director_name: result[i].director_name,
-      };
-      directorList.push(singleEntry);
-    }
-    const queryData = { data: directorList };
-    console.log(queryData);
-    //return queryData;
+      let directorList = [];
+      for (let i = 0; i < result.length; i += 1) {
+        const singleEntry = {
+          director_id: result[i].director_id,
+          director_name: result[i].director_name,
+        };
+        directorList.push(singleEntry);
+      }
+      const MoviesListJson = { data: directorList };
+      console.log(MoviesListJson);
+      return resolve(MoviesListJson);
+    });
   });
+}
+function makeDirectorID(givenId) {
+  let directorID = '';
+  if (givenId.length > 1) {
+    directorID = `D${givenId}`;
+  } else {
+    directorID = `D0${givenId}`;
+  }
+  return directorID;
 }
 
 function getDirectorByID(id) {
-  const sqlQuery = `SELECT * FROM Director WHERE director_id = '${id}'`;
-  connection.query(sqlQuery, (err, result) => {
-    if (err) throw err;
-    const singleEntry = {
-      director_id: result[0].director_id,
-      director_name: result[0].director_name,
-    };
-
-    const queryData = { data: singleEntry };
-    console.log(queryData);
+  const directorID = makeDirectorID(id);
+  const sqlQuery = `SELECT * FROM Director WHERE director_id = '${directorID}'`;
+  return new Promise((resolve, reject) => {
+    connection.query(sqlQuery, (err, result) => {
+      if (err) reject(err);
+      const singleDirector = {
+        director_id: result[0].director_id,
+        director_name: result[0].director_name,
+      };
+      const directorData = { data: singleDirector };
+      console.log(directorData);
+      return resolve(directorData);
+    });
   });
 }
 
@@ -60,12 +74,15 @@ function addDirector(data) {
 }
 
 function deleteDirector(id) {
-  const sqlQuery = `DELETE FROM Director WHERE director_id = '${id}';`;
-
-  connection.query(sqlQuery, (err, result) => {
-    if (err) throw err;
-    console.log(result);
-    console.log('Row deleted successfully!');
+  const directorID = makeDirectorID(id);
+  const sqlQuery = `DELETE FROM Director WHERE director_id = '${directorID}';`;
+  return new Promise((resolve, reject) => {
+    connection.query(sqlQuery, (err, result) => {
+      if (err) return reject(err);
+      console.log(result);
+      console.log('Row deleted successfully!');
+      return resolve({ data: { message: `Director with id ${id} is deleted successfully.` } });
+    });
   });
 }
 
@@ -90,7 +107,6 @@ function updateDirector(data) {
 }
 
 function getAllMovies() {
-
   return new Promise((resolve, reject) => {
     const getAllquery = 'SELECT * FROM Movie';
 
@@ -165,10 +181,13 @@ function addMovie(data) {
 function deleteMovie(movieRank) {
   const sqlQuery = `DELETE FROM Movie WHERE movie_rank = '${movieRank}';`;
 
-  connection.query(sqlQuery, (err, result) => {
-    if (err) throw err;
-    console.log(result);
-    console.log('Movie deleted successfully!');
+  return new Promise((resolve, reject) => {
+    connection.query(sqlQuery, (err, result) => {
+      if (err) reject(err);
+      console.log(result);
+      console.log('Movie deleted successfully!');
+      return resolve({ data: { message: `Movie with movie_rank ${movieRank} deleted from database.` } });
+    });
   });
 }
 
@@ -224,4 +243,12 @@ connection.connect((err) => {
   }
 });
 
-module.exports = { getAllMovies, getMovieByID };
+module.exports = {
+  getAllMovies,
+  getMovieByID,
+  addMovie,
+  getAllDirector,
+  getDirectorByID,
+  deleteMovie,
+  deleteDirector,
+};

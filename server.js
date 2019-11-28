@@ -1,6 +1,8 @@
 const express = require('express');
-const app = express();
 const movie = require('./index');
+
+const app = express();
+
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -16,7 +18,6 @@ app.get('/api/movies', (req, res) => {
 });
 
 app.get('/api/movies/:id', (req, res) => {
-  console.log('parameter', req.params);
   const promiseObject = movie.getMovieByID(req.params.id);
   promiseObject.then((result) => {
     console.log(result);
@@ -24,9 +25,32 @@ app.get('/api/movies/:id', (req, res) => {
   });
 });
 
-// app.get('/api/movies/:year/:month', (req, res) => {
-//   res.send(req.params);
-// });
+app.delete('/api/movies/:id', (req, res) => {
+  const promiseObject = movie.deleteMovie(req.params.id);
+  promiseObject.then((result) => res.send(result));
+});
+
+app.get('/api/directors', (req, res) => {
+  const promiseObject = movie.getAllDirector();
+  promiseObject.then((result) => {
+    const directors = JSON.stringify(result);
+    res.send(directors);
+  });
+});
+
+app.get('/api/directors/:id', (req, res) => {
+  console.log(req.params.id);
+  const promiseObject = movie.getDirectorByID(req.params.id);
+  promiseObject.then((result) => {
+    const directors = JSON.stringify(result);
+    res.send(directors);
+  });
+});
+
+app.delete('/api/directors/:id', (req, res) => {
+  const promiseObject = movie.deleteDirector(req.params.id);
+  promiseObject.then((result) => res.send(result));
+});
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
