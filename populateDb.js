@@ -9,41 +9,59 @@ const connection = mysql.createConnection({
   database: 'movies_database',
 });
 
-let movieArray = [];
+const movieArray = [];
 const fieldsMovie = Object.keys(movieData[0]);
-let directorArray = [];
-let directorCount = 1;
 
 
-const insertQueryMovie = 'INSERT INTO Movie (movie_rank, Title, description, Runtime, genre, rating, metascore, '
-                        + 'votes, gross_earning_mil, director_id, actor, years) VALUES ?';
+const insertQueryMovie = 'INSERT INTO Movie (movie_rank, title, description, runtime, genre, rating, metascore, '
+                        + 'votes, gross_earning_mil, director_id, actor, year) VALUES ?';
 
-const insertQueryDirector = 'INSERT INTO Director (director_id, director_name) VALUES ?';
+const insertQueryDirector = 'INSERT INTO Director (director_name, director_id) VALUES ?';
+
+const listOfDirector = [];
+movieData.forEach((movie) => {
+  if (listOfDirector.indexOf(movie.Director) === -1) {
+    listOfDirector.push(movie.Director);
+  }
+});
+
+function makeDirectorID(givenId) {
+  let directorID = '';
+  if (givenId.length > 1) {
+    directorID = `D${givenId}`;
+  } else {
+    directorID = `D0${givenId}`;
+  }
+  return directorID;
+}
+
+let directorWithIds = {};
+let directorCount  = 1;
+listOfDirector.forEach((director) => {
+  const directorID = makeDirectorID(directorCount.toString());
+  directorWithIds[director] = directorID;
+  directorCount += 1;
+});
 
 
 movieData.forEach((movie) => {
-  let singleMovie = [];
+  const singleMovie = [];
 
   fieldsMovie.forEach((field) => {
     if (field === 'Director') {
-      let director = movie[field];
-      let directorId;
-      if (directorCount.toString().length === 1) {
-        directorId = `D0${directorCount.toString()}`;
-      } else {
-        directorId = `D${directorCount.toString()}`;
-      }
+      const directorId = directorWithIds[movie[field]];
       singleMovie.push(directorId);
-      if (directorArray.indexOf([directorId, director]) === -1) {
-        directorArray.push([directorId, director]);
-        directorCount += 1;
-      }
     } else {
       singleMovie.push(movie[field]);
     }
   });
   movieArray.push(singleMovie);
 });
+
+console.log(movieArray);
+const directorArray = Object.entries(directorWithIds);
+
+console.log(directorArray);
 
 connection.connect((err) => {
   if (err) {
@@ -63,4 +81,3 @@ connection.connect((err) => {
     connection.end();
   }
 });
-
