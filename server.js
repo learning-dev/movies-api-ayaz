@@ -15,21 +15,26 @@ app.get('/api/movies', (req, res) => {
   promiseObject.then((result) => {
     console.log(result);
     const movies = JSON.stringify(result);
-    res.send(movies);
+    res.status(200).send(movies);
   });
 });
 
 app.get('/api/movies/:id', (req, res) => {
+  console.log(req.params.id);
   const promiseObject = movie.getMovieByID(req.params.id);
   promiseObject.then((result) => {
     console.log(result);
-    res.send(result);
+    res.status(200).send(result);
+  }).catch((error) => {
+    console.log(error);
+    const errorMessage = { data: { errorMessage: `Either resource with id ${req.params.id} doesn't exist` } };
+    res.status(404).send(errorMessage);
   });
 });
 
 app.delete('/api/movies/:id', (req, res) => {
   const promiseObject = movie.deleteMovie(req.params.id);
-  promiseObject.then((result) => res.send(result));
+  promiseObject.then((result) => res.status(200).send(result));
 });
 
 app.post('/api/movies/', (req, res) => {
@@ -37,7 +42,7 @@ app.post('/api/movies/', (req, res) => {
   console.log(movieToAdd);
   const promiseObject = movie.addMovie(movieToAdd);
   promiseObject.then((result) => {
-    res.send(result);
+    res.status(201).send(result);
   }).catch((error) => {
     console.log(error);
   });
@@ -50,9 +55,11 @@ app.put('/api/movies/:id', (req, res) => {
   console.log(movieId);
   const promiseObject = movie.updateMovie(movieId, fieldsToUpdate);
   promiseObject.then((result) => {
-    res.send(result);
+    res.status(200).send(result);
   }).catch((error) => {
     console.log(error);
+    const errorMessage = { data: { errorMessage: "Either resource or field doesn't exist", errorDump: error } };
+    res.status(404).send(errorMessage);
   });
 });
 
@@ -61,7 +68,7 @@ app.get('/api/directors', (req, res) => {
   const promiseObject = movie.getAllDirector();
   promiseObject.then((result) => {
     const directors = JSON.stringify(result);
-    res.send(directors);
+    res.status(200).send(directors);
   });
 });
 
@@ -70,7 +77,7 @@ app.get('/api/directors/:id', (req, res) => {
   const promiseObject = movie.getDirectorByID(req.params.id);
   promiseObject.then((result) => {
     const directors = JSON.stringify(result);
-    res.send(directors);
+    res.status(200).send(directors);
   });
 });
 
@@ -79,7 +86,7 @@ app.post('/api/directors/', (req, res) => {
   console.log(directorToAdd);
   const promiseObject = movie.addDirector(directorToAdd);
   promiseObject.then((result) => {
-    res.send(result);
+    res.status(201).send(result);
   }).catch((error) => {
     console.log(error);
   });
@@ -87,7 +94,7 @@ app.post('/api/directors/', (req, res) => {
 
 app.delete('/api/directors/:id', (req, res) => {
   const promiseObject = movie.deleteDirector(req.params.id);
-  promiseObject.then((result) => res.send(result));
+  promiseObject.then((result) => res.status(200).send(result));
 });
 
 
@@ -98,7 +105,7 @@ app.put('/api/directors/:id', (req, res) => {
   console.log(directorId);
   const promiseObject = movie.updateDirector(directorId, fieldsToUpdate);
   promiseObject.then((result) => {
-    res.send(result);
+    res.status(200).send(result);
   }).catch((error) => {
     console.log(error);
   });

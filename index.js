@@ -14,7 +14,7 @@ function getAllDirector() {
     connection.query(getAllquery, (err, result) => {
       if (err) reject(err);
 
-      let directorList = [];
+      const directorList = [];
       for (let i = 0; i < result.length; i += 1) {
         const singleEntry = {
           director_id: result[i].director_id,
@@ -124,7 +124,6 @@ function getAllMovies() {
         movieList.push(singleEntry);
       }
       const movies = { data: movieList };
-      //console.log(movies);
       return resolve(movies);
     });
   });
@@ -135,7 +134,12 @@ function getMovieByID(id) {
   return new Promise((resolve, reject) => {
     const sqlQuery = `SELECT * FROM Movie WHERE movie_rank = '${id}'`;
     connection.query(sqlQuery, (err, result) => {
-      if (err) return reject(err);
+      if (err) {
+        return reject(err);
+      } if (result.length === 0) {
+        console.log('result', result);
+        return reject(new Error(`Record not found for ${id}`));
+      }
       const singleEntry = {
         movie_rank: result[0].movie_rank,
         title: result[0].title,
@@ -155,6 +159,10 @@ function getMovieByID(id) {
       console.log(queryData);
       return resolve(queryData);
     });
+  }).catch((error) => {
+    console.log(error);
+    const errorMessage = { data: { errorMessage: "Either resource or field doesn't exist" } };
+    throw errorMessage;
   });
 }
 
