@@ -65,8 +65,7 @@ app.put('/api/movies/:id', (req, res) => {
 app.get('/api/directors', (req, res) => {
   const promiseObject = director.getAllDirector();
   promiseObject.then((result) => {
-    const directors = JSON.stringify(result);
-    res.status(200).send(directors);
+    res.status(200).send(result);
   });
 });
 
@@ -74,8 +73,7 @@ app.get('/api/directors/:id', (req, res) => {
   console.log(req.params.id);
   const promiseObject = director.getDirectorByID(req.params.id);
   promiseObject.then((result) => {
-    const directors = JSON.stringify(result);
-    res.status(200).send(directors);
+    res.status(200).send(result);
   });
 });
 
