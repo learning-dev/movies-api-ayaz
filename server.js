@@ -1,4 +1,4 @@
-// implement .catch and send 404 error when you don't find something.
+
 const bodyParser = require('body-parser');
 const express = require('express');
 const movie = require('./movies.js');
@@ -13,9 +13,12 @@ databaseConnection.connectToDb();
 app.get('/api/movies', (req, res) => {
   const promiseObject = movie.getAllMovies();
   promiseObject.then((result) => {
-    console.log(result);
-    res.status(200).send(result);
-  });
+    if (result) {
+      res.status(200).send(result);
+    } else {
+      throw (new Error('No data sent from table.'));
+    }
+  }).catch((err) => res.status(404).send({ data: { error: "Internal error! can't retrieve movies." } }));
 });
 
 app.get('/api/movies/:id', (req, res) => {
@@ -73,6 +76,7 @@ app.get('/api/directors/:id', (req, res) => {
   console.log(req.params.id);
   const promiseObject = director.getDirectorByID(req.params.id);
   promiseObject.then((result) => {
+
     res.status(200).send(result);
   });
 });

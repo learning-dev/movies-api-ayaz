@@ -30,7 +30,6 @@ function queryDatabase(query) {
     });
   }).catch((err) => {
     console.log(err);
-    return (err);
   });
 }
 

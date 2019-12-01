@@ -1,7 +1,7 @@
 const { queryDatabase } = require('./connectToDb.js');
 
 function getAllMovies() {
-  const getAllMoviesQuery = 'SELECT * FROM Movie';
+  const getAllMoviesQuery = 'SELECT * FROM Movies';
   return queryDatabase(getAllMoviesQuery);
 }
 
