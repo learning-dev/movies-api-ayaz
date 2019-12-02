@@ -1,9 +1,11 @@
 const mysql = require('mysql');
 
+require('dotenv').config();
+
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'ayaz',
-  password: 'password',
+  password: process.env.PASSWORD,
   database: 'movies_database',
 });
 
