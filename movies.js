@@ -27,14 +27,11 @@ function deleteMovie(id) {
 
 function updateMovie(id, data) {
   const fieldsToBeUpdated = Object.keys(data);
-  let errFlag = 0;
-  let msg = '';
   let results = [];
   fieldsToBeUpdated.forEach((field) => {
     const fieldUpdateQuery = `UPDATE Movie SET ${field} = '${data[field]}' WHERE id ='${id}';`;
     results.push(queryDatabase(fieldUpdateQuery));
   });
-  console.log(results);
   return Promise.all(results);
 }
 
