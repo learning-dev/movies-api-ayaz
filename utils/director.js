@@ -1,4 +1,4 @@
-const { queryDatabase } = require('./connectToDb');
+const { queryDatabase } = require('../database/connectToDb');
 
 function getAllDirector() {
   const getAllDirectorsQuery = 'SELECT * FROM Director';

@@ -1,4 +1,4 @@
-const { queryDatabase } = require('./connectToDb.js');
+const { queryDatabase } = require('../database/connectToDb.js');
 
 function getAllMovies() {
   const getAllMoviesQuery = 'SELECT * FROM Movies';

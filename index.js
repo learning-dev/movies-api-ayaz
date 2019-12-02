@@ -1,9 +1,9 @@
 
 const bodyParser = require('body-parser');
 const express = require('express');
-const movie = require('./movies.js');
-const director = require('./director.js');
-const databaseConnection = require('./connectToDb.js');
+const movie = require('./utils/movies.js');
+const director = require('./utils/director.js');
+const databaseConnection = require('./database/connectToDb.js');
 
 const app = express();
 
