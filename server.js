@@ -26,17 +26,34 @@ app.get('/api/movies/:id', (req, res) => {
   const promiseObject = movie.getMovieByID(req.params.id);
   promiseObject.then((result) => {
     console.log(result);
-    res.status(200).send(result);
+    if (result.data.length > 0) {
+      res.status(200).send(result);
+    } else {
+      throw (new Error('Not found'));
+    }
   }).catch((error) => {
     console.log(error);
-    const errorMessage = { data: { errorMessage: `Either resource with id ${req.params.id} doesn't exist` } };
+    const errorMessage = { data: { errorMessage: `Resource with id ${req.params.id} doesn't exist` } };
     res.status(404).send(errorMessage);
   });
 });
 
 app.delete('/api/movies/:id', (req, res) => {
+  console.log(req.params.id);
   const promiseObject = movie.deleteMovie(req.params.id);
-  promiseObject.then((result) => res.status(200).send(result));
+  promiseObject.then((result) => {
+    let msg = '';
+    let statusCode;
+    if (result.data.affectedRows > 0) {
+      msg = `Resource with id ${req.params.id} is deleted sucessfully.`;
+      statusCode = 200;
+    } else {
+      msg = `Error: Can't delete the resource with id ${req.params.id}. Either is moved or doesn't exist.`;
+      statusCode = 404;
+    }
+    const resultJson = { data: { message: msg } };
+    res.status(statusCode).send(resultJson);
+  });
 });
 
 app.post('/api/movies/', (req, res) => {
@@ -44,7 +61,17 @@ app.post('/api/movies/', (req, res) => {
   console.log(movieToAdd);
   const promiseObject = movie.addMovie(movieToAdd);
   promiseObject.then((result) => {
-    res.status(201).send(result);
+    let msg;
+    let statusCode;
+    if (result && result.data.affectedRows > 0) {
+      msg = `Resource have been created with id ${result.data.insertId}`;
+      statusCode = 201;
+    } else {
+      msg = 'Error: can\'t resource. Make sure you check the fields and user previleges again or the resource already exists.';
+      statusCode = 400;
+    }
+    const resultJson = { data: { message: msg } };
+    res.status(statusCode).send(resultJson);
   }).catch((error) => {
     console.log(error);
   });
@@ -53,15 +80,37 @@ app.post('/api/movies/', (req, res) => {
 app.put('/api/movies/:id', (req, res) => {
   const fieldsToUpdate = req.body;
   const movieId = req.params.id;
-  console.log(fieldsToUpdate);
-  console.log(movieId);
-  const result = movie.updateMovie(movieId, fieldsToUpdate);
-  res.status(200).send(result);
-  // }).catch((error) => {
-  //   console.log(error);
-  //   const errorMessage = { data: { errorMessage: "Either resource or field doesn't exist", errorDump: error } };
-  //   res.status(404).send(errorMessage);
-  // });
+  const promiseObject = movie.updateMovie(movieId, fieldsToUpdate);
+  let msg;
+  let failedIndex;
+  let statusCode;
+  promiseObject.then((listOfPromsie) => {
+    // Check if the movie with given id exists or not.
+    listOfPromsie.forEach((result) => {
+      if (result !== undefined && result.data.affectedRows === 0) {
+        msg = `Error: Item with id ${req.params.id} doesn't exitst`;
+        res.status(404).send({ data: { message: msg } });
+      }
+    });
+    // if exists then all the fields exists in the table.
+    const falseFields = listOfPromsie.some((result) => {
+      if (result === undefined) {
+        failedIndex = listOfPromsie.indexOf(result);
+      }
+      return result === undefined;
+    });
+    const listOfFields = Object.keys(fieldsToUpdate);
+    // if given fields are incorrect then show err or else show a success message.
+    if (falseFields) {
+      msg = `Error: field '${listOfFields[failedIndex]}' is incorrect. Please `;
+      statusCode = 400;
+    } else {
+      msg = `All the fields i.e. ${listOfFields.join(', ')} are updated successfully`;
+      statusCode = 200;
+    }
+  }).catch((err) => {
+    console.log(err);
+  }).finally(() => res.status(statusCode).send({ data: { message: msg } }));
 });
 
 

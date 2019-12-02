@@ -18,30 +18,24 @@ function addMovie(data) {
     + `'${data.director_id}', '${data.actor}', '${data.year}');`;
 
   return queryDatabase(addMovieQuery);
-  //return resolve(`Movie ${data.title} added successfully!`);
 }
 
 function deleteMovie(id) {
   const deleteMovieQuery = `DELETE FROM Movie WHERE id = '${id}';`;
   return queryDatabase(deleteMovieQuery);
-  //return resolve({ data: { message: `Movie with id ${id} deleted from database.` } });
-
 }
+
 function updateMovie(id, data) {
   const fieldsToBeUpdated = Object.keys(data);
   let errFlag = 0;
-  let errMsg = '';
-  let results;
+  let msg = '';
+  let results = [];
   fieldsToBeUpdated.forEach((field) => {
     const fieldUpdateQuery = `UPDATE Movie SET ${field} = '${data[field]}' WHERE id ='${id}';`;
-    results = queryDatabase(fieldUpdateQuery);
-    results.catch((err) => {
-      console.log(err);
-      errFlag = 1;
-      errMsg = { data: { message: `error: Unable to update field ${field}` } };
-    });
+    results.push(queryDatabase(fieldUpdateQuery));
   });
-  return { data: { message: `Values of the given fields i.e. ${fieldsToBeUpdated.join(', ')} has been updated!` } };
+  console.log(results);
+  return Promise.all(results);
 }
 
 module.exports = {
